@@ -6,28 +6,28 @@ import (
 	"savvyshopper/domain"
 )
 
-// searcher defines the interface for searching offers.
-type searcher interface {
+// Searcher defines the interface for searching offers.
+type Searcher interface {
 	Search(ctx context.Context, query string) ([]domain.Offer, error)
 }
 
-// amazonSearcher implements the searcher interface for Amazon.
+// amazonSearcher implements the Searcher interface for Amazon.
 type amazonSearcher struct {
 	endpoint string
 }
 
-// walmartSearcher implements the searcher interface for Walmart.
+// walmartSearcher implements the Searcher interface for Walmart.
 type walmartSearcher struct {
 	endpoint string
 }
 
 // NewAmazonSearcher creates a new amazonSearcher instance.
-func NewAmazonSearcher(endpoint string) searcher {
+func NewAmazonSearcher(endpoint string) Searcher {
 	return &amazonSearcher{endpoint: endpoint}
 }
 
 // NewWalmartSearcher creates a new walmartSearcher instance.
-func NewWalmartSearcher(endpoint string) searcher {
+func NewWalmartSearcher(endpoint string) Searcher {
 	return &walmartSearcher{endpoint: endpoint}
 }
 

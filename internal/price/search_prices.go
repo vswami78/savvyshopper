@@ -9,12 +9,12 @@ import (
 
 // SearchPrices queries both Amazon and Walmart, merges, sorts, and enforces invariants.
 // If searchers is nil, uses the default real searchers.
-func SearchPrices(ctx context.Context, query string, searchersOpt ...map[domain.Retailer]searcher) ([]domain.Offer, error) {
-	var searchers map[domain.Retailer]searcher
+func SearchPrices(ctx context.Context, query string, searchersOpt ...map[domain.Retailer]Searcher) ([]domain.Offer, error) {
+	var searchers map[domain.Retailer]Searcher
 	if len(searchersOpt) > 0 && searchersOpt[0] != nil {
 		searchers = searchersOpt[0]
 	} else {
-		searchers = map[domain.Retailer]searcher{
+		searchers = map[domain.Retailer]Searcher{
 			domain.Amazon:  NewAmazonSearcher("https://api.zinc.io/v1/search/amazon"),
 			domain.Walmart: NewWalmartSearcher("https://api.zinc.io/v1/search/walmart"),
 		}
