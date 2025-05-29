@@ -1,0 +1,22 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output
+bin/
+
+# Dependency directories
+vendor/
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Test data
+*.golden
