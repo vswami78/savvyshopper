@@ -1,0 +1,16 @@
+{
+  "offers": [
+    {
+      "title": "Mock Product 1",
+      "price": 19.99,
+      "url": "https://example.com/product1",
+      "retailer": "Amazon"
+    },
+    {
+      "title": "Mock Product 2",
+      "price": 29.99,
+      "url": "https://example.com/product2",
+      "retailer": "Walmart"
+    }
+  ]
+} 

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/vswami78/savvyshopper/domain"
+	"savvyshopper/domain"
 )
 
 func TestAPIKey(t *testing.T) {
@@ -28,6 +28,12 @@ func TestAPIKey(t *testing.T) {
 			name:    "key set",
 			envKey:  "test-key-123",
 			want:    "test-key-123",
+			wantErr: nil,
+		},
+		{
+			name:    "mock key set",
+			envKey:  "mock-api-key-for-testing",
+			want:    "mock-data",
 			wantErr: nil,
 		},
 	}

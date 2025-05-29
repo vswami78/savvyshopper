@@ -1,3 +1,3 @@
-module github.com/vswami78/savvyshopper
+module savvyshopper
 
 go 1.24.3
