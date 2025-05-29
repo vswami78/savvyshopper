@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"time"
 
@@ -37,6 +38,25 @@ type zincResponse struct {
 	} `json:"results"`
 }
 
+// retryWithBackoff retries the given function with exponential back-off.
+// It retries up to maxRetries times, with a delay of baseDelay * 2^attempt.
+func retryWithBackoff(ctx context.Context, maxRetries int, baseDelay time.Duration, fn func() error) error {
+	var err error
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		err = fn()
+		if err == nil {
+			return nil
+		}
+		delay := time.Duration(math.Pow(2, float64(attempt))) * baseDelay
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(delay):
+		}
+	}
+	return err
+}
+
 // makeRequest sends a POST request to the Zinc API and returns the parsed response.
 func makeRequest(ctx context.Context, endpoint string, payload []byte, retailer domain.Retailer) ([]domain.Offer, error) {
 	// Create a new HTTP request with context
@@ -54,8 +74,13 @@ func makeRequest(ctx context.Context, endpoint string, payload []byte, retailer 
 		Timeout: 10 * time.Second,
 	}
 
-	// Send request
-	resp, err := client.Do(req)
+	// Send request with retry
+	var resp *http.Response
+	err = retryWithBackoff(ctx, 3, 100*time.Millisecond, func() error {
+		var err error
+		resp, err = client.Do(req)
+		return err
+	})
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to send request: %v", domain.ErrNetwork, err)
 	}
