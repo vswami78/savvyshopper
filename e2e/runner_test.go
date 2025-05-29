@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 
@@ -12,6 +13,10 @@ import (
 
 // TestRunnerEndToEnd verifies the runner works with mock searchers.
 func TestRunnerEndToEnd(t *testing.T) {
+	// Set mock API key
+	os.Setenv("ZINC_API_KEY", "test-key")
+	defer os.Unsetenv("ZINC_API_KEY")
+
 	// Create mock searchers
 	mockSearchers := map[domain.Retailer]price.Searcher{
 		domain.Amazon:  &mockSearcher{retailer: domain.Amazon},

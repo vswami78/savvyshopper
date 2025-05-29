@@ -1,0 +1,3 @@
+Title                                                         Price   Retailer  URL
+Short Title                                                   $10.99  Amazon    https://example.com/1
+Very Long Title That Should Be Truncated Because It Exceeds   $20.99  Walmart   https://example.com/2 
