@@ -42,7 +42,7 @@ func makeRequest(ctx context.Context, endpoint string, payload []byte, retailer 
 	// Create a new HTTP request with context
 	req, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewBuffer(payload))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("%w: failed to create request: %v", domain.ErrNetwork, err)
 	}
 
 	// Set headers
@@ -57,19 +57,22 @@ func makeRequest(ctx context.Context, endpoint string, payload []byte, retailer 
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("%w: failed to send request: %v", domain.ErrNetwork, err)
 	}
 	defer resp.Body.Close()
 
 	// Check status code
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("%w: unauthorized request", domain.ErrAuth)
+	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("%w: unexpected status code: %d", domain.ErrNetwork, resp.StatusCode)
 	}
 
 	// Parse response
 	var zincResp zincResponse
 	if err := json.NewDecoder(resp.Body).Decode(&zincResp); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
+		return nil, fmt.Errorf("%w: failed to parse response: %v", domain.ErrNetwork, err)
 	}
 
 	// Convert to domain.Offer slice

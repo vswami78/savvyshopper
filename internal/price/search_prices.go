@@ -2,6 +2,8 @@ package price
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sort"
 
 	"savvyshopper/domain"
@@ -24,7 +26,10 @@ func SearchPrices(ctx context.Context, query string, searchersOpt ...map[domain.
 	for retailer, s := range searchers {
 		offers, err := s.Search(ctx, query)
 		if err != nil {
-			// TODO: Wrap/handle network/auth errors as needed
+			// Wrap network/auth errors
+			if errors.Is(err, domain.ErrNetwork) || errors.Is(err, domain.ErrAuth) {
+				return nil, fmt.Errorf("%w: %v", err, err)
+			}
 			continue
 		}
 		// Set retailer field (defensive, in case helpers don't)
@@ -51,7 +56,7 @@ func SearchPrices(ctx context.Context, query string, searchersOpt ...map[domain.
 	// Ensure price >= 0
 	for _, offer := range allOffers {
 		if offer.Price < 0 {
-			return nil, domain.ErrNetwork // or another error
+			return nil, fmt.Errorf("%w: negative price found", domain.ErrNetwork)
 		}
 	}
 

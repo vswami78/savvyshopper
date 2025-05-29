@@ -31,7 +31,7 @@ func TestSearchPrices_MergeSortAndTruncate(t *testing.T) {
 		{Title: "F", Price: 15, Retailer: domain.Walmart},
 	}
 
-	searchers := map[domain.Retailer]searcher{
+	searchers := map[domain.Retailer]Searcher{
 		domain.Amazon:  &mockSearcher{results: amazonResults},
 		domain.Walmart: &mockSearcher{results: walmartResults},
 	}
@@ -56,7 +56,7 @@ func TestSearchPrices_MergeSortAndTruncate(t *testing.T) {
 }
 
 func TestSearchPrices_NoResults(t *testing.T) {
-	searchers := map[domain.Retailer]searcher{
+	searchers := map[domain.Retailer]Searcher{
 		domain.Amazon:  &mockSearcher{results: nil},
 		domain.Walmart: &mockSearcher{results: nil},
 	}
