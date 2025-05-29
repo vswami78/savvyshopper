@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sort"
 	"testing"
+	"time"
 
 	"savvyshopper/domain"
 )
@@ -12,9 +13,13 @@ import (
 type mockSearcher struct {
 	results []domain.Offer
 	err     error
+	latency time.Duration
 }
 
 func (m *mockSearcher) Search(ctx context.Context, query string) ([]domain.Offer, error) {
+	if m.latency > 0 {
+		time.Sleep(m.latency)
+	}
 	return m.results, m.err
 }
 
@@ -64,5 +69,22 @@ func TestSearchPrices_NoResults(t *testing.T) {
 	_, err := SearchPrices(context.Background(), "test", searchers)
 	if !errors.Is(err, domain.ErrNoResults) {
 		t.Errorf("expected ErrNoResults, got %v", err)
+	}
+}
+
+func TestSearchPrices_ConcurrentLatency(t *testing.T) {
+	// Each searcher sleeps 40ms; total should be just over 40ms, not 80ms+
+	searchers := map[domain.Retailer]Searcher{
+		domain.Amazon:  &mockSearcher{results: []domain.Offer{{Title: "A", Price: 1, Retailer: domain.Amazon}}, latency: 40 * time.Millisecond},
+		domain.Walmart: &mockSearcher{results: []domain.Offer{{Title: "B", Price: 2, Retailer: domain.Walmart}}, latency: 40 * time.Millisecond},
+	}
+	start := time.Now()
+	_, err := SearchPrices(context.Background(), "test", searchers)
+	elapsed := time.Since(start)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if elapsed > 60*time.Millisecond {
+		t.Errorf("concurrent SearchPrices took too long: %v (should be <60ms)", elapsed)
 	}
 }
